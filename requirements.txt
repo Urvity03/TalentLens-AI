@@ -9,3 +9,5 @@ python-docx
 plotly
 pdfplumber
 nltk
+sentence-transformers
+scikit-learn

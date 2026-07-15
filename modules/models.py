@@ -89,3 +89,11 @@ class JobDescription:
 
     experience: str = ""
     education: str = ""
+@dataclass
+class SimilarityResult:
+    """Semantic similarity scores."""
+
+    summary: float = 0.0
+    skills: float = 0.0
+    experience: float = 0.0
+    overall: float = 0.0

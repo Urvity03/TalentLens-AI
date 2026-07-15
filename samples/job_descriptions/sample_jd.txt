@@ -1,21 +1,20 @@
 Machine Learning Engineer
 
-Summary
-
-Looking for an AI/ML Engineer passionate about NLP.
-
 Skills
 
 Python
-Machine Learning
 TensorFlow
 PyTorch
+NLP
+Machine Learning
 SQL
 
 Experience
 
-2+ years of Machine Learning experience.
+ML projects
+Deep Learning
+Computer Vision
 
 Education
 
-Bachelor's Degree in Computer Science.
+Bachelor's in AI/ML
