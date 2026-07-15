@@ -3,6 +3,8 @@
 from dataclasses import dataclass, field
 
 
+# ---------- Contact ----------
+
 @dataclass
 class ContactInfo:
     """Candidate contact information."""
@@ -14,13 +16,17 @@ class ContactInfo:
     github: str | None = None
 
 
+# ---------- Common ----------
+
 @dataclass
 class Skill:
-    """Detected skill from a resume or job description."""
+    """Detected skill."""
 
     name: str
     confidence: float = 1.0
 
+
+# ---------- Resume Sections ----------
 
 @dataclass
 class Experience:
@@ -56,9 +62,11 @@ class Certification:
     name: str | None = None
 
 
+# ---------- Main Objects ----------
+
 @dataclass
 class Resume:
-    """Structured resume object."""
+    """Structured resume."""
 
     contact: ContactInfo = field(default_factory=ContactInfo)
     summary: str = ""
@@ -68,3 +76,16 @@ class Resume:
     education: list[Education] = field(default_factory=list)
     projects: list[Project] = field(default_factory=list)
     certifications: list[Certification] = field(default_factory=list)
+
+
+@dataclass
+class JobDescription:
+    """Structured job description."""
+
+    title: str = ""
+    summary: str = ""
+
+    skills: list[Skill] = field(default_factory=list)
+
+    experience: str = ""
+    education: str = ""
