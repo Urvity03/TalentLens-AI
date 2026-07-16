@@ -141,3 +141,18 @@ class RecruiterInsights:
     strengths: list[str] = field(default_factory=list)
     concerns: list[str] = field(default_factory=list)
     recommendation: str = ""
+
+
+@dataclass
+class AnalysisResult:
+    """Consolidated candidate analysis pipeline results."""
+
+    resume: Resume
+    job_description: JobDescription
+    similarity: SimilarityResult
+    quality: float
+    skill_intelligence: SkillIntelligence
+    ahri: AHRIResult
+    potential: PotentialPrediction
+    recruiter: RecruiterInsights
+    roadmap: CareerRoadmap
