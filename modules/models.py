@@ -132,3 +132,12 @@ class CareerRoadmap:
     """Personalized learning roadmap."""
 
     steps: list[str] = field(default_factory=list)
+
+
+@dataclass
+class RecruiterInsights:
+    """Recruiter summary."""
+
+    strengths: list[str] = field(default_factory=list)
+    concerns: list[str] = field(default_factory=list)
+    recommendation: str = ""
