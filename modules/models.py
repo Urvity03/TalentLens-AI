@@ -97,3 +97,14 @@ class SimilarityResult:
     skills: float = 0.0
     experience: float = 0.0
     overall: float = 0.0
+
+
+@dataclass
+class AHRIResult:
+    """Adaptive Hiring Readiness Index."""
+
+    score: float
+    grade: str
+    strengths: list[str] = field(default_factory=list)
+    missing_skills: list[str] = field(default_factory=list)
+    recommendation: str = ""

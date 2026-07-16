@@ -49,3 +49,18 @@ SIMILARITY_WEIGHTS = {
 }
 
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
+AHRI_GRADES = [
+    (90, "A+"),
+    (80, "A"),
+    (70, "B"),
+    (60, "C"),
+    (50, "D"),
+    (0, "F"),
+]
+
+AHRI_SKILL_BONUS = 1.0
+AHRI_MAX_BONUS = 10.0
+
+AHRI_SKILL_PENALTY = 0.5
+AHRI_MAX_PENALTY = 10.0
