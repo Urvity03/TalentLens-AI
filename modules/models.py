@@ -108,3 +108,12 @@ class AHRIResult:
     strengths: list[str] = field(default_factory=list)
     missing_skills: list[str] = field(default_factory=list)
     recommendation: str = ""
+
+
+@dataclass
+class SkillIntelligence:
+    """Skill intelligence match results."""
+
+    matched: list[str] = field(default_factory=list)
+    missing: list[str] = field(default_factory=list)
+    match_percentage: float = 0.0
