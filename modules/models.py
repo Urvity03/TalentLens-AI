@@ -117,3 +117,11 @@ class SkillIntelligence:
     matched: list[str] = field(default_factory=list)
     missing: list[str] = field(default_factory=list)
     match_percentage: float = 0.0
+
+
+@dataclass
+class PotentialPrediction:
+    """Candidate potential prediction."""
+
+    score: float
+    level: str
