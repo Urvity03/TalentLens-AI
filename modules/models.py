@@ -125,3 +125,10 @@ class PotentialPrediction:
 
     score: float
     level: str
+
+
+@dataclass
+class CareerRoadmap:
+    """Personalized learning roadmap."""
+
+    steps: list[str] = field(default_factory=list)
