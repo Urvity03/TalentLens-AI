@@ -7,7 +7,7 @@ from modules.models import JobDescription, Skill
 
 
 def parse_job_description(file_path: str | Path) -> JobDescription:
-    """Parse a job description file."""
+    """Parse a job description file and compile a JobDescription record."""
 
     path = Path(file_path)
     text = _read_text(path)
@@ -18,9 +18,16 @@ def parse_job_description(file_path: str | Path) -> JobDescription:
         ""
     )
 
+    summary = sections.get("Summary", "").strip()
+    if not summary:
+        summary = (
+            f"Seeking a qualified and results-driven {title} to contribute "
+            f"to software engineering, development, and system analytics tasks."
+        )
+
     return JobDescription(
         title=title,
-        summary=sections.get("Summary", ""),
+        summary=summary,
         skills=_extract_skills(sections.get("Skills", "")),
         experience=sections.get("Experience", ""),
         education=sections.get("Education", ""),

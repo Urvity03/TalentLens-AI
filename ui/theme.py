@@ -1,23 +1,29 @@
-"""UI Themes and Color Palettes for TalentLens-AI."""
+"""UI theme color palettes for TalentLens-AI."""
 
 LIGHT_THEME = {
     "background": "#F8FAFC",
+    "surface": "#F1F5F9",
     "card": "#FFFFFF",
-    "primary": "#6366F1",
-    "accent": "#8B5CF6",
-    "success": "#10B981",
-    "warning": "#F59E0B",
-    "danger": "#EF4444",
+    "border": "#E5E7EB",
+    "primary": "#4F46E5",
+    "accent": "#6366F1",
+    "success": "#059669",
+    "warning": "#D97706",
+    "danger": "#DC2626",
     "text": "#111827",
+    "muted": "#6B7280",
 }
 
 DARK_THEME = {
-    "background": "#0F172A",
-    "card": "#1E293B",
-    "primary": "#818CF8",
-    "accent": "#A78BFA",
-    "success": "#34D399",
-    "warning": "#FBBF24",
-    "danger": "#F87171",
-    "text": "#F8FAFC",
+    "background": "#0B0F19",
+    "surface": "#111827",
+    "card": "#1F2937",
+    "border": "#2D3748",
+    "primary": "#6366F1",
+    "accent": "#818CF8",
+    "success": "#10B981",
+    "warning": "#F59E0B",
+    "danger": "#EF4444",
+    "text": "#F9FAFB",
+    "muted": "#9CA3AF",
 }

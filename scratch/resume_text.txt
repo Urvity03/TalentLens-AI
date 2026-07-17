@@ -1,0 +1,56 @@
+Urvi Tyagi
+Phone +91 8923643053
+Envelope tyagiurvi03@gmail.com
+Map-marker-alt Ghaziabad, Uttar Pradesh, India
+LINKEDIN linkedin.com/in/urvi-tyagi026
+Github github.com/urvity03
+PROFESSIONAL SUMMARY
+Final-year B.Tech student specializing in Artiﬁcial Intelligence and Machine Learning with practical experience in Machine
+Learning, Natural Language Processing, Computer Vision, Data Analytics, and Generative AI. Experienced in developing
+AI-driven solutions through academic projects and industry internships.
+EDUCATION
+Dr. A.P.J. Abdul Kalam Technical University (AKTU)
+Expected 2027
+Bachelor of Technology (B.Tech) – Computer Science (Artiﬁcial Intelligence & Machine Learning)
+TECHNICAL SKILLS
+Programming Languages: Python, SQL
+Artiﬁcial Intelligence & Machine Learning: Machine Learning, Deep Learning, Natural Language Processing (NLP), Computer
+Vision, Transfer Learning, Ensemble Learning
+Tools & Technologies: TensorFlow, Scikit-Learn, Streamlit, Git & GitHub, Google Colab, Vertex AI, Gemini
+Core Concepts: Generative AI, Responsible AI, Explainable AI (XAI), Data Preprocessing, Predictive Analytics
+INTERNSHIP EXPERIENCE
+IBM Project-Based Learning (PBL) Internship (Ongoing)
+2026
+• Working on industry-oriented AI and Machine Learning projects.
+• Applying data analytics and machine learning concepts to solve real-world business challenges.
+• Collaborating in a structured professional learning environment with industry guidance.
+Tata iQ Virtual Internship – GenAI & Data Analytics Project Trainee
+Aug 2025
+• Conducted data analysis using Generative AI tools to identify customer behavior patterns and delinquency risks.
+• Developed predictive approaches for risk segmentation and collections prioritization.
+• Applied Responsible AI principles including fairness and explainability in solution design.
+• Gained practical exposure to business analytics and AI-driven decision-making.
+PROJECTS
+AI Resume Screening System
+Python, NLP, Streamlit
+• Developed an NLP-powered application that matches resumes with job descriptions.
+• Implemented similarity scoring techniques to evaluate candidate-job ﬁt.
+• Improved recruitment eﬃciency through automated resume analysis.
+Animal Breed Recognition System
+TensorFlow, MobileNetV2
+• Built an image classiﬁcation system for identifying cattle breeds using deep learning.
+• Applied transfer learning and feature extraction techniques to improve model performance.
+• Implemented scalable recognition methods for future breed expansion.
+Loan Default Prediction Model
+Python, Scikit-Learn
+• Developed a predictive model for identifying high-risk borrowers.
+• Performed feature engineering and data preprocessing for improved prediction accuracy.
+• Utilized explainable AI techniques to interpret model decisions.
+CERTIFICATIONS
+IBM Machine Learning Badge • Google Cloud Prompt Design in Vertex AI • Gemini for Data Scientists Badge • AWS Introduction
+to Generative AI • Cognitive Class Machine Learning Certiﬁcate • Codédex Python Certiﬁcate
+LANGUAGES
+English – Professional Working Proﬁciency • Hindi – Native Proﬁciency • Japanese – Beginner Level
+AREAS OF INTEREST
+Artiﬁcial Intelligence • Machine Learning • Natural Language Processing • Data Analytics • Generative AI • Cross-Cultural
+Technology Collaboration

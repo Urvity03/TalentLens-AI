@@ -10,10 +10,14 @@ SECTION_NAMES = (
     "Education",
     "Projects",
     "Certifications",
+    "Internship",
+    "Achievements",
 )
 
 SECTION_PATTERN = re.compile(
-    r"(?im)^\s*(summary|skills|experience|education|projects|certifications)\s*:?\s*$"
+    r"(?im)^\s*(professional\s+summary|summary|technical\s+skills|skills|"
+    r"internship\s+experience|internship|experience|education|projects|"
+    r"certifications|achievements)\s*:?\s*$"
 )
 
 SUPPORTED_SKILLS = [

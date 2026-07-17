@@ -36,7 +36,7 @@ def extract_text_from_docx(file_path: str | Path) -> str:
 
 
 def normalize_text(text: str) -> str:
-    """Normalize whitespace while preserving paragraph breaks.
+    """Normalize whitespace and ligatures while preserving paragraph breaks.
 
     Args:
         text: Raw extracted text.
@@ -44,6 +44,13 @@ def normalize_text(text: str) -> str:
     Returns:
         Clean text with consistent spacing and line breaks.
     """
+    # Replace ligatures
+    text = text.replace("\ufb01", "fi")
+    text = text.replace("\ufb02", "fl")
+    text = text.replace("\ufb00", "ff")
+    text = text.replace("\ufb03", "ffi")
+    text = text.replace("\ufb04", "ffl")
+
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
@@ -64,10 +71,31 @@ def detect_resume_sections(text: str) -> dict[str, str]:
     matches = list(SECTION_PATTERN.finditer(text))
 
     for index, match in enumerate(matches):
-        section_name = match.group(1).strip().title()
+        raw_name = match.group(1).strip().title()
+
+        # Map variation titles to standard SECTION_NAMES
+        if "Summary" in raw_name:
+            section_name = "Summary"
+        elif "Skills" in raw_name:
+            section_name = "Skills"
+        elif "Internship" in raw_name:
+            section_name = "Internship"
+        elif "Experience" in raw_name:
+            section_name = "Experience"
+        elif "Projects" in raw_name:
+            section_name = "Projects"
+        elif "Certifications" in raw_name:
+            section_name = "Certifications"
+        elif "Achievements" in raw_name:
+            section_name = "Achievements"
+        else:
+            section_name = raw_name
+
         start = match.end()
         end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
-        sections[section_name] = text[start:end].strip()
+
+        if section_name in sections:
+            sections[section_name] = text[start:end].strip()
 
     return sections
 

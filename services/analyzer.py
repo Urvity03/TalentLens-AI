@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from modules.ahri import calculate_ahri
+from modules.evidence_intelligence import compile_evidence_collection
 from modules.jd_parser import parse_job_description
 from modules.models import AnalysisResult
 from modules.parser import parse_resume
@@ -29,6 +30,9 @@ def analyze_candidate(
     """
     resume = parse_resume(resume_path)
     job_description = parse_job_description(job_description_path)
+
+    # Compile the internal evidence collection
+    evidence_collection = compile_evidence_collection(resume)
 
     similarity = calculate_resume_similarity(resume, job_description)
     quality = calculate_resume_quality(resume)

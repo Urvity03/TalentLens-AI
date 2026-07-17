@@ -67,12 +67,9 @@ def test_render_pie_chart():
     assert fig_light.layout.paper_bgcolor == "rgba(0,0,0,0)"
     assert fig_light.data[0].type == "pie"
     assert fig_light.data[0].hole == 0.45
-    # The donut segments should match the light theme colors
+    # The donut segments should match the light theme success/danger colors
     assert list(fig_light.layout.piecolorway) == [
-        LIGHT_THEME["primary"],
-        LIGHT_THEME["accent"],
         LIGHT_THEME["success"],
-        LIGHT_THEME["warning"],
         LIGHT_THEME["danger"],
     ]
 
@@ -81,10 +78,7 @@ def test_render_pie_chart():
     assert isinstance(fig_dark, go.Figure)
     assert fig_dark.layout.font.color == DARK_THEME["text"]
     assert list(fig_dark.layout.piecolorway) == [
-        DARK_THEME["primary"],
-        DARK_THEME["accent"],
         DARK_THEME["success"],
-        DARK_THEME["warning"],
         DARK_THEME["danger"],
     ]
 

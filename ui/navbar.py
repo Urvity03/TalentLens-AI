@@ -3,29 +3,67 @@
 import streamlit as st
 
 
-def render_navbar() -> str:
-    """Render the main header/navbar of the platform.
+def _render_icon(icon: str) -> str:
+    """Generate a standard Material Symbols Outlined HTML icon element.
 
-    Displays logo/title, description, and theme selection toggle.
+    Args:
+        icon: The name of the icon symbol.
 
     Returns:
-        The selected theme string ("light" or "dark").
+        The HTML span element string.
     """
-    col1, col2 = st.columns([4, 1])
+    if not icon:
+        return ""
+    return f'<span class="material-symbols-outlined tl-icon">{icon}</span>'
 
-    with col1:
+
+def render_navbar() -> str:
+    """Render the AppHeader component of the TalentLens-AI platform.
+
+    Displays the monogram logo, platform titles, theme toggle controls, and
+    user account settings action elements inline using native Streamlit columns.
+
+    Returns:
+        The active theme mode ("light" or "dark").
+    """
+    # Outer structural container block
+    st.markdown('<div class="tl-navbar">', unsafe_allow_html=True)
+
+    col_brand, col_toggle, col_actions = st.columns([5, 1.5, 1.5])
+
+    with col_brand:
         st.markdown(
-            '<h1 style="margin: 0; font-size: 2.25rem; font-weight: 700;">🔍 TalentLens-AI</h1>',
+            """
+            <div class="tl-navbar-brand">
+                <div class="tl-navbar-logo">TL</div>
+                <div class="tl-navbar-title-stack">
+                    <span class="tl-navbar-title">TalentLens AI</span>
+                    <span class="tl-navbar-subtitle">AI Recruiting Intelligence Platform</span>
+                </div>
+            </div>
+            """,
             unsafe_allow_html=True,
         )
-        st.markdown(
-            '<p style="margin: 0.25rem 0 1.5rem 0; font-style: italic; opacity: 0.8;">'
-            "AI-powered Resume Intelligence Platform</p>",
-            unsafe_allow_html=True,
-        )
 
-    with col2:
-        is_dark = st.toggle("Dark Mode 🌙", value=True)
+    with col_toggle:
+        is_dark = st.toggle("Dark Mode", value=True, key="theme_toggle")
         theme = "dark" if is_dark else "light"
+
+    with col_actions:
+        settings_icon = _render_icon("settings")
+        st.markdown(
+            f"""
+            <div class="tl-navbar-actions">
+                {settings_icon}
+                <div class="tl-avatar">UT</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # Bottom border separator line (participates naturally in vertical layout)
+    st.markdown('<div class="tl-navbar-divider"></div>', unsafe_allow_html=True)
 
     return theme
