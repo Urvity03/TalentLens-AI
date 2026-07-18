@@ -4,15 +4,15 @@ import streamlit as st
 
 
 def section_header(title: str, description: str = "") -> None:
-    """Render a standard header with a divider.
+    """Render a standard header matching typography specifications.
 
     Args:
         title: The section title.
         description: Supporting detail subtext.
     """
-    st.markdown(f"### {title}")
+    st.markdown(f'<div style="font-size: 36px; font-weight: 700; color: #111827; line-height: 1.2; margin-top: 24px; margin-bottom: 12px;">{title}</div>', unsafe_allow_html=True)
     if description:
-        st.markdown(f"<div style='color: #6B7280; font-size: 13px; margin-top: -8px; margin-bottom: 12px;'>{description}</div>", unsafe_allow_html=True)
+        st.markdown(f'<div style="font-size: 16px; color: #6B7280; margin-bottom: 24px;">{description}</div>', unsafe_allow_html=True)
     st.markdown("<hr style='margin: 8px 0 16px 0; border: 0; border-top: 1px solid #E5E7EB;'>", unsafe_allow_html=True)
 
 
@@ -99,15 +99,3 @@ def progress_bar(label: str, percentage: float) -> None:
         unsafe_allow_html=True
     )
     st.progress(min(max(percentage / 100.0, 0.0), 1.0))
-
-
-def summary_card(title: str, text: str) -> None:
-    """Render a text card content block.
-
-    Args:
-        title: Header label descriptor.
-        text: Content block details.
-    """
-    with st.container(border=True):
-        st.markdown(f"<div style='font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 8px;'>{title}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div style='font-size: 12px; line-height: 1.6; color: #111827;'>{text}</div>", unsafe_allow_html=True)

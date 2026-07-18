@@ -39,14 +39,16 @@ def render_sidebar() -> None:
     # 3. Main Navigation list mapping exact anchors
     nav_items = [
         ("Overview", "#overview"),
-        ("Resume Analysis", "#scores"),
-        ("Skill Intelligence", "#skills"),
-        ("AHRI Score", "#ahri"),
-        ("Hiring Recommendation", "#recommendation"),
+        ("Candidate Profile", "#profile"),
+        ("Intelligence Scores", "#scores"),
+        ("Executive Summary", "#summary"),
+        ("Skills Match Matrix", "#skills"),
+        ("Top Projects", "#projects"),
         ("Career Timeline", "#timeline"),
-        ("Career Roadmap", "#roadmap"),
         ("Recruiter Insights", "#insights"),
-        ("Export Report", "#export")
+        ("Hiring Recommendation", "#recommendation"),
+        ("Career Roadmap", "#roadmap"),
+        ("Export Reports", "#export")
     ]
 
     for label, anchor in nav_items:
