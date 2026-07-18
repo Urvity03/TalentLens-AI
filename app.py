@@ -1,399 +1,249 @@
-"""Main dashboard application orchestration for TalentLens-AI."""
+"""Main application entrypoint for the TalentLens AI Recruiter Intelligence Platform."""
 
 import os
 import tempfile
-import time
-import pandas as pd
+import traceback
 import streamlit as st
 
 from services.analyzer import analyze_candidate
-from ui.cards import (
-    candidate_summary_card,
-    empty_state,
-    export_panel,
-    insights_summary_card,
-    loading_state,
-    metric_card,
-    recommendation_banner,
-    roadmap_timeline,
-    section_header,
-    skills_card,
-)
-from ui.charts import render_bar_chart, render_gauge, render_pie_chart
-from ui.export_pdf import generate_pdf_report
-from ui.navbar import render_navbar
 from ui.styles import load_css
+from ui.sidebar import render_sidebar
+from ui.header import render_header
+from ui.landing import render_landing_page
+from ui.dashboard import render_dashboard
 
-# --- Page Configurations ---
-st.set_page_config(
-    page_title="TalentLens AI",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
 
-# --- State Initializations ---
-if "analysis_result" not in st.session_state:
-    st.session_state.analysis_result = None
-if "cta_clicked" not in st.session_state:
-    st.session_state.cta_clicked = False
+def init_app() -> None:
+    """Initialize page configurations and CSS styles overrides."""
+    st.set_page_config(
+        page_title="TalentLens AI",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
+    st.markdown(f"<style>{load_css()}</style>", unsafe_allow_html=True)
 
-# --- Header/Navbar Render ---
-theme = render_navbar()
+    # Initialize state variables
+    if "analysis_result" not in st.session_state:
+        st.session_state.analysis_result = None
+    if "analysis_running" not in st.session_state:
+        st.session_state.analysis_running = False
+    if "analysis_progress" not in st.session_state:
+        st.session_state.analysis_progress = 0
+    if "analysis_step" not in st.session_state:
+        st.session_state.analysis_step = ""
+    if "analysis_steps_log" not in st.session_state:
+        st.session_state.analysis_steps_log = []
+    if "analysis_error" not in st.session_state:
+        st.session_state.analysis_error = None
 
-# --- CSS Design System Injection ---
-st.markdown(f"<style>{load_css(theme)}</style>", unsafe_allow_html=True)
+    # Cached file storage values
+    if "uploaded_resume_name" not in st.session_state:
+        st.session_state.uploaded_resume_name = None
+    if "uploaded_resume_bytes" not in st.session_state:
+        st.session_state.uploaded_resume_bytes = None
+    if "uploaded_jd_name" not in st.session_state:
+        st.session_state.uploaded_jd_name = None
+    if "uploaded_jd_bytes" not in st.session_state:
+        st.session_state.uploaded_jd_bytes = None
 
-# --- Sidebar Controls Render ---
-with st.sidebar:
-    from ui.sidebar import render_sidebar
-    uploaded_resume, jd_text, uploaded_jd, analyze_clicked = render_sidebar()
 
-# --- Trigger Analysis Pipeline Action ---
-if analyze_clicked:
-    if not uploaded_resume:
-        st.error("Please upload a candidate resume to begin.")
-    elif not jd_text and not uploaded_jd:
-        st.error("Please provide a job description (paste text or upload file).")
-    else:
-        # Create temporary files to pass to the backend orchestration analyzer
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as t_resume:
-            t_resume.write(uploaded_resume.read())
-            resume_path = t_resume.name
+def render_skeletons() -> None:
+    """Display pulsing skeleton loading state cards."""
+    st.markdown(
+        """
+        <div style="margin-top: 32px; padding: 24px; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.05);">
+            <div style="font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 16px;">Candidate Overview</div>
+            <div class="skeleton" style="height: 16px; width: 60%; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="height: 16px; width: 40%; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="height: 16px; width: 80%; margin-bottom: 24px;"></div>
+            
+            <div style="font-size: 15px; font-weight: 700; color: #111827; margin-top: 24px; margin-bottom: 16px;">Intelligence Metrics</div>
+            <div style="display: flex; gap: 16px;">
+                <div class="skeleton" style="flex: 1; height: 80px; border-radius: 8px;"></div>
+                <div class="skeleton" style="flex: 1; height: 80px; border-radius: 8px;"></div>
+                <div class="skeleton" style="flex: 1; height: 80px; border-radius: 8px;"></div>
+            </div>
+            
+            <div style="font-size: 15px; font-weight: 700; color: #111827; margin-top: 24px; margin-bottom: 16px;">Skills Matrix</div>
+            <div class="skeleton" style="height: 12px; width: 100%; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="height: 12px; width: 90%; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="height: 12px; width: 95%;"></div>
+        </div>
+        
+        <style>
+            .skeleton {
+                background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+                background-size: 200% 100%;
+                animation: loading 1.5s infinite;
+                border-radius: 4px;
+            }
+            @keyframes loading {
+                0% { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-        jd_path = None
-        if jd_text:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".txt", mode="w", encoding="utf-8") as t_jd:
-                t_jd.write(jd_text)
-                jd_path = t_jd.name
-        else:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as t_jd:
-                t_jd.write(uploaded_jd.read())
-                jd_path = t_jd.name
 
-        try:
-            # Render visual loading progress diagnostics logs checklist
-            loading_placeholder = st.empty()
-            steps = [
-                "Parsing Resume",
-                "Parsing Job Description",
-                "Extracting Skills",
-                "Calculating Similarity",
-                "Computing AHRI",
-                "Generating Recruiter Insights",
-                "Building Dashboard",
-            ]
+def run_pipeline_analysis() -> None:
+    """Execute the backend candidate evaluation pipeline with live state feedback reporting."""
+    # Write temp resume file
+    resume_suffix = os.path.splitext(st.session_state.uploaded_resume_name)[1]
+    with tempfile.NamedTemporaryFile(delete=False, suffix=resume_suffix) as temp_resume:
+        temp_resume.write(st.session_state.uploaded_resume_bytes)
+        resume_path = temp_resume.name
 
-            for idx in range(len(steps)):
-                with loading_placeholder:
-                    loading_state(steps, idx)
-                time.sleep(0.35)
+    # Write temp JD file
+    jd_suffix = os.path.splitext(st.session_state.uploaded_jd_name)[1]
+    with tempfile.NamedTemporaryFile(delete=False, suffix=jd_suffix) as temp_jd:
+        temp_jd.write(st.session_state.uploaded_jd_bytes)
+        jd_path = temp_jd.name
 
-            # Invoke backend pipeline orchestration
-            result = analyze_candidate(resume_path, jd_path)
-            st.session_state.analysis_result = result
-            st.session_state.cta_clicked = False  # Reset onboarding click state
+    # Setup rendering placeholders
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    steps_log = st.empty()
+    
+    # Render initial skeletons
+    render_skeletons()
 
-            # Completed step rendering
-            with loading_placeholder:
-                loading_state(steps, len(steps))
-            time.sleep(0.2)
-            loading_placeholder.empty()
+    def progress_callback(step_name: str, percentage: int):
+        st.session_state.analysis_progress = percentage
+        st.session_state.analysis_step = step_name
+        if step_name not in st.session_state.analysis_steps_log:
+            st.session_state.analysis_steps_log.append(step_name)
 
-        finally:
-            # Securely clean up temporary files
-            for path in [resume_path, jd_path]:
-                if path and os.path.exists(path):
-                    try:
-                        os.remove(path)
-                    except OSError:
-                        pass
+        # Update progress bar value
+        progress_bar.progress(percentage / 100.0)
+
+        # Update status text
+        status_text.markdown(f"**Current Step:** {step_name} ({percentage}%)")
+
+        # Update log summary
+        log_html = "<div style='font-size: 13px; color: #6B7280; line-height: 1.6; margin-top: 12px;'>"
+        for step in st.session_state.analysis_steps_log:
+            if step == "Complete":
+                log_html += f"<div style='color: #16A34A; font-weight: bold;'>✓ {step}</div>"
+            elif step == step_name:
+                log_html += f"<div style='color: #4F46E5; font-weight: bold;'>➜ {step}</div>"
+            else:
+                log_html += f"<div style='color: #16A34A;'>✓ {step}</div>"
+        log_html += "</div>"
+        steps_log.markdown(log_html, unsafe_allow_html=True)
+
+    try:
+        # Run real backend analysis
+        result = analyze_candidate(resume_path, jd_path, progress_callback=progress_callback)
+        st.session_state.analysis_result = result
+        st.session_state.analysis_running = False
+        st.session_state.analysis_error = None
+        st.rerun()
+    except Exception as e:
+        # Log error traceback in details
+        print("Analysis Exception Traceback:")
+        traceback.print_exc()
+        
+        st.session_state.analysis_error = str(e)
+        st.session_state.analysis_running = False
+        st.rerun()
+    finally:
+        # Clean up temp files
+        for path in (resume_path, jd_path):
+            if path and os.path.exists(path):
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+
+
+def render_error_card() -> None:
+    """Render a professional recruitment platform error feedback screen."""
+    st.markdown(
+        """
+        <div style="background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 12px; padding: 24px; margin-top: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="background: #EF4444; color: #FFFFFF; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">!</div>
+                <div style="font-size: 16px; font-weight: 700; color: #991B1B;">Analysis Failed</div>
+            </div>
+            <div style="font-size: 14px; color: #7F1D1D; line-height: 1.5; margin-bottom: 16px;">
+                Unable to process the uploaded files. Please verify the resume and job description requirements and try again.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    if st.button("Retry Evaluation", key="retry_analysis_btn"):
+        st.session_state.analysis_error = None
+        st.session_state.analysis_result = None
+        st.session_state.analysis_running = False
         st.rerun()
 
-# --- Render Platform Cockpit View ---
-res = st.session_state.analysis_result
 
-if res is None:
-    # Handle smooth focus guidance warning on Empty State CTA click
-    if st.session_state.cta_clicked:
-        st.info("← Sidebar Active! Please drag and drop your candidate resume in the panel on the left to get started.")
+def main() -> None:
+    """Render sidebar, header, and coordinate between landing page and dashboard views."""
+    init_app()
 
-    # Onboarding Empty State Display
-    empty_state(
-        title="TalentLens AI Workspace",
-        description=(
-            "Upload candidate resumes and matching job descriptions in the sidebar. "
-            "TalentLens AI will parse qualifications, calculate readiness index scores, "
-            "outline roadmap development curves, and compile executive recruiter guides."
-        ),
-        cta="Get Started Now",
-        illustration="assignment_ind",
-    )
-else:
-    # 1. Top KPI Row (AHRI, Quality, Match, Potential)
-    col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
+    # Render sidebar
+    with st.sidebar:
+        render_sidebar()
 
-    with col_kpi1:
-        ahri_badge_type = "success" if res.ahri.score >= 70 else "warning"
-        metric_card(
-            title="AHRI Score",
-            value=f"{res.ahri.score:.1f}",
-            subtitle="Suitability readiness index",
-            badge=f"Grade {res.ahri.grade}",
-            badge_type=ahri_badge_type,
-            icon="developer_board",
+    # Render header (title and subtitle only)
+    render_header()
+
+    # Check for error state first
+    if st.session_state.analysis_error is not None:
+        render_error_card()
+        return
+
+    # Load session state variables
+    res = st.session_state.analysis_result
+
+    if st.session_state.analysis_running:
+        # Render Loading Screen
+        st.markdown(
+            """
+            <div style="margin-bottom: 24px;">
+                <div style="font-size: 24px; font-weight: 800; color: #111827;">TalentLens AI</div>
+                <div style="font-size: 15px; color: #6B7280; margin-top: 4px;">Analyzing Candidate Profile...</div>
+                <div style="font-size: 13px; color: #9CA3AF; margin-top: 2px; margin-bottom: 16px;">Please wait while TalentLens AI evaluates the candidate.</div>
+            </div>
+            """,
+            unsafe_allow_html=True
         )
+        run_pipeline_analysis()
 
-    with col_kpi2:
-        quality_badge_type = "success" if res.quality >= 80 else "warning"
-        metric_card(
-            title="Resume Quality",
-            value=f"{res.quality:.1f}%",
-            subtitle="Completeness evaluation",
-            badge="Complete" if res.quality >= 80 else "Gaps Detected",
-            badge_type=quality_badge_type,
-            icon="description",
-        )
+    elif res is None:
+        # Render Landing Page with single upload cards row
+        land_resume, land_jd, land_paste, land_analyze = render_landing_page()
+        
+        if land_analyze:
+            if not land_resume:
+                st.error("Please upload a candidate resume to begin.")
+            elif not land_jd and not land_paste:
+                st.error("Please provide a job description (upload a file or paste requirements).")
+            else:
+                # Persist files data to state across execution cycles
+                st.session_state.uploaded_resume_name = land_resume.name
+                land_resume.seek(0)
+                st.session_state.uploaded_resume_bytes = land_resume.read()
+                
+                if land_jd:
+                    st.session_state.uploaded_jd_name = land_jd.name
+                    land_jd.seek(0)
+                    st.session_state.uploaded_jd_bytes = land_jd.read()
+                else:
+                    st.session_state.uploaded_jd_name = "jd.txt"
+                    st.session_state.uploaded_jd_bytes = land_paste.encode("utf-8")
+                
+                st.session_state.analysis_running = True
+                st.session_state.analysis_steps_log = []
+                st.rerun()
+    else:
+        # Render Dashboard Report View
+        render_dashboard(res)
 
-    with col_kpi3:
-        skills_badge_type = "success" if res.skill_intelligence.match_percentage >= 70 else "warning"
-        metric_card(
-            title="Skill Match",
-            value=f"{res.skill_intelligence.match_percentage:.1f}%",
-            subtitle="Matched target requirements",
-            badge="High Match" if res.skill_intelligence.match_percentage >= 70 else "Needs Upskill",
-            badge_type=skills_badge_type,
-            icon="extension",
-        )
 
-    with col_kpi4:
-        potential_badge_type = (
-            "success"
-            if "High" in res.potential.level
-            or "Outstanding" in res.potential.level
-            or "Excellent" in res.potential.level
-            else "warning"
-        )
-        metric_card(
-            title="Potential Level",
-            value=f"{res.potential.score:.1f}",
-            subtitle="Growth forecast scale",
-            badge=res.potential.level,
-            badge_type=potential_badge_type,
-            icon="trending_up",
-        )
-
-    # Vertical space spacing spacer
-    st.markdown('<div style="height: var(--space-6);"></div>', unsafe_allow_html=True)
-
-    # 2. Main Dashboard Navigation Tabs
-    tab_overview, tab_skills, tab_insights, tab_analytics, tab_roadmap, tab_export = st.tabs([
-        "Overview",
-        "Skills Intelligence",
-        "Recruiter Insights",
-        "Analytics",
-        "Career Roadmap",
-        "Export Report",
-    ])
-
-    with tab_overview:
-        section_header(
-            title="Candidate Profile Summary",
-            subtitle="Contact info, similarity metrics, education details, and professional experience",
-            action="Profile",
-        )
-        candidate_summary_card(
-            name=res.resume.contact.name,
-            email=res.resume.contact.email,
-            phone=res.resume.contact.phone,
-            linkedin=res.resume.contact.linkedin,
-            github=res.resume.contact.github,
-            similarity=res.similarity.overall,
-            quality=res.quality,
-            summary=res.resume.summary,
-            education=res.resume.education,
-            experience=res.resume.experience,
-            projects=res.resume.projects,
-            certifications=res.resume.certifications,
-        )
-
-    with tab_skills:
-        section_header(
-            title="Skills Match Matrix",
-            subtitle="Detailed extraction categorizing Technical, Tools, Soft Skills, and Languages",
-            action="Skills",
-        )
-
-        col_skills, col_pie = st.columns([1.2, 1.0])
-        with col_skills:
-            skills_card(
-                matched_skills=res.skill_intelligence.matched,
-                missing_skills=res.skill_intelligence.missing,
-            )
-
-        with col_pie:
-            st.markdown('<div class="tl-chart">', unsafe_allow_html=True)
-            fig_donut = render_pie_chart(
-                labels=["Matched", "Missing"],
-                values=[
-                    len(res.skill_intelligence.matched),
-                    len(res.skill_intelligence.missing),
-                ],
-                title="Gaps Distribution Share Ratio",
-                theme=theme,
-            )
-            st.plotly_chart(fig_donut, use_container_width=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-    with tab_insights:
-        section_header(
-            title="Recruiter Insights",
-            subtitle="Strengths highlights, areas of concern, hiring decisions, risk factors, and culture fits",
-            action="Insights",
-        )
-
-        verdict_status = "success" if res.ahri.score >= 70 else "warning"
-        recommendation_banner(
-            status=verdict_status,
-            message=f"Hiring Verdict Verdict: {res.recruiter.recommendation}",
-        )
-
-        col_ins_l, col_ins_r = st.columns(2)
-        with col_ins_l:
-            insights_summary_card(
-                title="Strengths Highlighted",
-                items=res.recruiter.strengths,
-                status_type="success",
-                icon="check_circle",
-            )
-            insights_summary_card(
-                title="Culture Fit Alignment",
-                items=res.ahri.strengths[:3],
-                status_type="primary",
-                icon="psychology",
-            )
-
-        with col_ins_r:
-            insights_summary_card(
-                title="Identified Risk Factors",
-                items=res.recruiter.concerns,
-                status_type="danger",
-                icon="error",
-            )
-            insights_summary_card(
-                title="Interview Focus Areas",
-                items=[f"Assess core knowledge of {s}" for s in res.ahri.missing_skills[:3]],
-                status_type="warning",
-                icon="help",
-            )
-
-    with tab_analytics:
-        section_header(
-            title="Analytics Deep-Dive",
-            subtitle="Large index gauges, score comparisons, and visual readiness comparators",
-            action="Analytics",
-        )
-
-        col_gauge, col_bar = st.columns(2)
-        with col_gauge:
-            st.markdown('<div class="tl-chart">', unsafe_allow_html=True)
-            fig_gauge = render_gauge(
-                value=res.ahri.score,
-                title="Readiness Index (AHRI)",
-                theme=theme,
-                grade=res.ahri.grade,
-            )
-            st.plotly_chart(fig_gauge, use_container_width=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        with col_bar:
-            st.markdown('<div class="tl-chart">', unsafe_allow_html=True)
-            fig_bar = render_bar_chart(
-                labels=["Growth Potential", "Profile Quality", "AHRI Score"],
-                values=[res.potential.score, res.quality, res.ahri.score],
-                title="Assessment Comparisons",
-                theme=theme,
-            )
-            st.plotly_chart(fig_bar, use_container_width=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown('<div class="tl-card">', unsafe_allow_html=True)
-        st.markdown('<div class="tl-card-header"><span class="material-symbols-outlined tl-icon">grid_on</span> Comparison Evaluation Matrix</div>', unsafe_allow_html=True)
-        df_scores = pd.DataFrame(
-            {
-                "Suitability Metric": [
-                    "Hiring Readiness (AHRI)",
-                    "Resume Profile Quality",
-                    "Skill Match Percentage",
-                    "Predicted Career Growth Potential",
-                ],
-                "Diagnostics Score": [
-                    f"{res.ahri.score:.1f} / 100.0",
-                    f"{res.quality:.1f}%",
-                    f"{res.skill_intelligence.match_percentage:.1f}%",
-                    f"{res.potential.score:.1f} / 100.0",
-                ],
-                "Hiring Classification": [
-                    f"Grade {res.ahri.grade}",
-                    "Qualified" if res.quality >= 80 else "Standard Integrity",
-                    "High Match" if res.skill_intelligence.match_percentage >= 70 else "Gaps Identified",
-                    res.potential.level,
-                ],
-            }
-        )
-        st.dataframe(df_scores, hide_index=True, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with tab_roadmap:
-        section_header(
-            title="Upskilling Growth Pathway",
-            subtitle="bridge qualification gaps chronologically connecting Week 1, Month 1, Month 3, and Month 6 timeline cohorts",
-            action="Pathway",
-        )
-
-        col_time, col_courses = st.columns(2)
-        with col_time:
-            roadmap_timeline(res.roadmap.steps)
-
-        with col_courses:
-            insights_summary_card(
-                title="Recommended Courses & Projects",
-                items=[f"Complete {s} fundamentals upskilling project" for s in res.skill_intelligence.missing[:3]],
-                status_type="primary",
-                icon="school",
-            )
-
-    with tab_export:
-        section_header(
-            title="Export Candidate Assessment",
-            subtitle="Print-friendly PDF report compiler, preview summaries, and download triggers",
-            action="Export",
-        )
-
-        col_dl, col_preview = st.columns(2)
-        with col_dl:
-            export_panel(pdf_bytes_ready=True)
-
-            pdf_bytes = generate_pdf_report(res)
-            st.download_button(
-                label="Download Report PDF",
-                data=pdf_bytes,
-                file_name=f"Assessment_Report_{res.resume.contact.name or 'Candidate'}.pdf",
-                mime="application/pdf",
-                key="pdf_download_button",
-            )
-
-        with col_preview:
-            st.markdown(
-                """
-                <div class="tl-card">
-                    <div class="tl-card-header"><span class="material-symbols-outlined tl-icon">visibility</span> Export Report Preview Summary</div>
-                    <div class="tl-card-body" style="font-size: 14px; line-height: 1.6;">
-                        <strong>Document Title:</strong> TalentLens AI - Candidate Evaluation Report<br>
-                        <strong>Total Pages:</strong> 2 Pages<br>
-                        <strong>Format Type:</strong> Standard PDF Document (MIME: application/pdf)<br><br>
-                        <em>Contains Candidate profile biography, contacts, education background, professional experience history, suitability indices (AHRI, Quality, Match Rate, Potential), recruiter strengths and concerns lists, and the personal upskilling roadmap.</em>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+if __name__ == "__main__":
+    main()

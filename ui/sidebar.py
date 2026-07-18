@@ -1,104 +1,68 @@
-"""Sidebar navigation panel component for TalentLens-AI."""
+"""Enterprise recruitment platform vertical navigation sidebar template."""
 
 import streamlit as st
 
 
-def render_sidebar() -> tuple[any, str, any, bool]:
-    """Render the SidebarPanel component housing analysis files upload controls.
-
-    Displays inputs for candidate resumes, textareas for pasting job descriptions,
-    secondary file uploaders for job descriptions, and the analysis action button.
-
-    Returns:
-        A tuple containing:
-            - uploaded_resume: Streamlit uploaded file object or None.
-            - jd_text: Pasted job description text string.
-            - uploaded_jd: Streamlit uploaded job description file object or None.
-            - analyze_clicked: Boolean indicating if the action button was clicked.
-    """
-    # Wrap sidebar items in our custom sidebar class
-    st.markdown('<div class="tl-sidebar">', unsafe_allow_html=True)
-
-    # 1. Sidebar Header Title and Description
+def render_sidebar() -> None:
+    """Render the sidebar with brand info, navigation list, and platform details."""
+    # 1. Branding Header
     st.markdown(
         """
-        <div class="tl-navbar-title-stack">
-            <span class="tl-navbar-title">Candidate Analysis</span>
-            <span class="tl-navbar-subtitle">Configure files for diagnostics evaluation</span>
+        <div style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="background: #4F46E5; color: #FFFFFF; width: 32px; height: 32px; border-radius: 6px; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 14px;">TL</div>
+                <div style="font-size: 15px; font-weight: 800; color: #111827; letter-spacing: -0.02em;">TalentLens AI</div>
+            </div>
+            <div style="font-size: 10px; color: #6B7280; margin-top: 6px; line-height: 1.3;">Candidate Intelligence Beyond Keywords</div>
         </div>
         """,
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
 
-    st.markdown('<div class="tl-divider"></div>', unsafe_allow_html=True)
+    # 2. Add New Analysis Button if a report is active to allow resetting the view
+    if st.session_state.get("analysis_result") is not None:
+        if st.button("New Analysis", key="sidebar_new_analysis", use_container_width=True):
+            st.session_state.analysis_result = None
+            st.session_state.analysis_running = False
+            st.session_state.analysis_progress = 0
+            st.session_state.analysis_step = ""
+            st.session_state.analysis_steps_log = []
+            st.session_state.analysis_error = None
+            st.session_state.uploaded_resume_name = None
+            st.session_state.uploaded_resume_bytes = None
+            st.session_state.uploaded_jd_name = None
+            st.session_state.uploaded_jd_bytes = None
+            st.rerun()
 
-    # 2. Candidate Resume Section
-    st.markdown(
-        '<div style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Candidate Resume</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown('<div class="tl-upload">', unsafe_allow_html=True)
-    uploaded_resume = st.file_uploader(
-        "Upload Resume (PDF, DOCX)",
-        type=["pdf", "docx"],
-        key="resume_uploader",
-        help="Upload candidate resume in PDF or DOCX format",
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin: 12px 0; border: 0; border-top: 1px solid #E5E7EB;'>", unsafe_allow_html=True)
 
-    st.markdown('<div class="tl-divider"></div>', unsafe_allow_html=True)
+    # 3. Main Navigation list mapping exact anchors
+    nav_items = [
+        ("Overview", "#overview"),
+        ("Resume Analysis", "#scores"),
+        ("Skill Intelligence", "#skills"),
+        ("AHRI Score", "#ahri"),
+        ("Hiring Recommendation", "#recommendation"),
+        ("Career Timeline", "#timeline"),
+        ("Career Roadmap", "#roadmap"),
+        ("Recruiter Insights", "#insights"),
+        ("Export Report", "#export")
+    ]
 
-    # 3. Job Description Section (Primary Text Area, Secondary File Uploader)
-    st.markdown(
-        '<div style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Target Job Description</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown('<div class="tl-textarea-container">', unsafe_allow_html=True)
-    jd_text = st.text_area(
-        "Paste Job Description (Primary)",
-        placeholder="Paste target job requirements and duties here...",
-        key="jd_textarea",
-        height=180,
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
+    for label, anchor in nav_items:
+        st.markdown(
+            f'<a href="{anchor}" style="display:block; text-decoration:none; padding:8px 12px; font-size:12px; font-weight:600; color:#111827; border-radius:6px; margin-bottom:4px; transition:background 0.15s;" onmouseover="this.style.background=\'#F6F8FC\';" onmouseout="this.style.background=\'transparent\';">{label}</a>',
+            unsafe_allow_html=True
+        )
 
-    st.markdown(
-        '<div style="text-align: center; font-size: 11px; color: var(--muted); font-weight: 600; margin: 8px 0; text-transform: uppercase;">— OR —</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown("<hr style='margin: 16px 0; border: 0; border-top: 1px solid #E5E7EB;'>", unsafe_allow_html=True)
 
-    st.markdown('<div class="tl-upload">', unsafe_allow_html=True)
-    uploaded_jd = st.file_uploader(
-        "Upload JD File (Secondary)",
-        type=["pdf", "txt"],
-        key="jd_uploader",
-        help="Alternatively upload job description as PDF or TXT",
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown('<div class="tl-divider"></div>', unsafe_allow_html=True)
-
-    # 4. Action Button
-    st.markdown('<div class="tl-button">', unsafe_allow_html=True)
-    analyze_clicked = st.button("Analyze Candidate", key="analyze_button")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown('<div class="tl-divider"></div>', unsafe_allow_html=True)
-
-    # 5. Recent Analyses Section (Placeholder Card)
-    st.markdown(
-        '<div style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Recent Analysis History</div>',
-        unsafe_allow_html=True,
-    )
+    # 4. Footer indicator details
     st.markdown(
         """
-        <div class="tl-card" style="padding: 12px !important; margin-bottom: 0px !important;">
-            <div style="font-size: 12px; color: var(--muted); text-align: center;">No recent analyses yet.</div>
+        <div style="font-size: 11px; color: #6B7280; padding-left: 12px;">
+            Version 1.0
         </div>
         """,
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    return uploaded_resume, jd_text, uploaded_jd, analyze_clicked
