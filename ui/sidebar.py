@@ -23,6 +23,15 @@ def render_sidebar() -> None:
     if st.session_state.get("analysis_result") is not None:
         if st.button("New Analysis", key="sidebar_new_analysis", use_container_width=True):
             st.session_state.analysis_result = None
+            st.session_state.analysis_running = False
+            st.session_state.analysis_progress = 0
+            st.session_state.analysis_step = ""
+            st.session_state.analysis_steps_log = []
+            st.session_state.analysis_error = None
+            st.session_state.uploaded_resume_name = None
+            st.session_state.uploaded_resume_bytes = None
+            st.session_state.uploaded_jd_name = None
+            st.session_state.uploaded_jd_bytes = None
             st.rerun()
 
     st.markdown("<hr style='margin: 12px 0; border: 0; border-top: 1px solid #E5E7EB;'>", unsafe_allow_html=True)

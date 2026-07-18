@@ -49,9 +49,10 @@ def render_landing_page() -> tuple:
         
         # Bottom full width Analyze Candidate button
         analyze_clicked = st.button(
-            "Analyze Candidate",
+            "Analyzing..." if st.session_state.get("analysis_running") else "Analyze Candidate",
             key="landing_analyze_btn",
-            use_container_width=True
+            use_container_width=True,
+            disabled=st.session_state.get("analysis_running", False)
         )
 
     # 2. Simple workflow sequence cards row

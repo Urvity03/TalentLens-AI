@@ -11,18 +11,12 @@ from modules.models import (
     SimilarityResult,
 )
 
-_MODEL = None
+import streamlit as st
 
-
+@st.cache_resource
 def _load_model() -> SentenceTransformer:
     """Load the embedding model once."""
-
-    global _MODEL
-
-    if _MODEL is None:
-        _MODEL = SentenceTransformer(EMBEDDING_MODEL)
-
-    return _MODEL
+    return SentenceTransformer(EMBEDDING_MODEL)
 
 
 def _encode(text: str) -> ndarray:
