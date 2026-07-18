@@ -3,7 +3,7 @@
 import streamlit as st
 import json
 from datetime import datetime
-from ui.components import section_header, metric_card, info_chip, progress_bar, summary_card
+from ui.components import section_header, metric_card, info_chip, progress_bar
 
 
 def render_dashboard(res) -> None:
@@ -12,38 +12,53 @@ def render_dashboard(res) -> None:
     Args:
         res: Consolidated AnalysisResult dataclass object.
     """
-    render_candidate_overview(res)
-    render_intelligence_scores(res)
+    # Page-top Overview anchor
+    st.markdown('<div id="overview"></div>', unsafe_allow_html=True)
     
-    # Grid split for Summary and Skills
-    col_summary, col_skills = st.columns([1.2, 0.8])
-    with col_summary:
-        render_executive_summary(res)
-    with col_skills:
-        render_skills_matrix(res)
-
-    # Grid split for Projects and Timeline
-    col_proj, col_time = st.columns(2)
-    with col_proj:
-        render_projects(res)
-    with col_time:
-        render_career_timeline(res)
-
-    # Grid split for Recruiter Insights and Hiring Recommendations
-    col_recruiter, col_recommendation = st.columns(2)
-    with col_recruiter:
-        render_recruiter_insights(res)
-    with col_recommendation:
-        render_hiring_recommendation(res)
-
+    # 1. Candidate Profile
+    render_candidate_overview(res)
+    st.markdown('<div style="height: 48px;"></div>', unsafe_allow_html=True)
+    
+    # 2. Intelligence Scores
+    render_intelligence_scores(res)
+    st.markdown('<div style="height: 48px;"></div>', unsafe_allow_html=True)
+    
+    # 3. Executive Summary
+    render_executive_summary(res)
+    st.markdown('<div style="height: 48px;"></div>', unsafe_allow_html=True)
+    
+    # 4. Skills Match Matrix
+    render_skills_matrix(res)
+    st.markdown('<div style="height: 48px;"></div>', unsafe_allow_html=True)
+    
+    # 5. Top Projects
+    render_projects(res)
+    st.markdown('<div style="height: 48px;"></div>', unsafe_allow_html=True)
+    
+    # 6. Career Timeline
+    render_career_timeline(res)
+    st.markdown('<div style="height: 48px;"></div>', unsafe_allow_html=True)
+    
+    # 7. Recruiter Insights
+    render_recruiter_insights(res)
+    st.markdown('<div style="height: 48px;"></div>', unsafe_allow_html=True)
+    
+    # 8. Hiring Recommendation
+    render_hiring_recommendation(res)
+    st.markdown('<div style="height: 48px;"></div>', unsafe_allow_html=True)
+    
+    # 9. Career Roadmap
     render_career_roadmap(res)
+    st.markdown('<div style="height: 48px;"></div>', unsafe_allow_html=True)
+    
+    # 10. Export Reports
     render_export_section(res)
 
 
 def render_candidate_overview(res) -> None:
-    """Render Candidate Overview section containing basic metadata details."""
-    st.markdown('<div id="overview"></div>', unsafe_allow_html=True)
-    section_header("1. Candidate Overview")
+    """Render Candidate Profile section containing basic metadata details."""
+    st.markdown('<div id="profile"></div>', unsafe_allow_html=True)
+    section_header("1. Candidate Profile", "Basic contact info, role specialization, and web references.")
     
     name = res.resume.contact.name or "Candidate Profile"
     role = res.resume.professional_identity.current_title or res.resume.professional_identity.technical_specialization or "Engineer"
@@ -82,7 +97,7 @@ def render_candidate_overview(res) -> None:
 def render_intelligence_scores(res) -> None:
     """Render Intelligence Scores section mapping computed scores cards."""
     st.markdown('<div id="scores"></div>', unsafe_allow_html=True)
-    section_header("2. Intelligence Scores")
+    section_header("2. Intelligence Scores", "Calculated index metrics derived from semantic similarity and resume content structure.")
     
     m1, m2, m3, m4 = st.columns(4)
     with m1:
@@ -97,29 +112,32 @@ def render_intelligence_scores(res) -> None:
 
 
 def render_executive_summary(res) -> None:
-    """Render Candidate Summary details container."""
+    """Render Executive Summary details container."""
+    st.markdown('<div id="summary"></div>', unsafe_allow_html=True)
+    section_header("3. Executive Summary", "A high-level synthesis of candidate core strengths and matching context.")
     summary_text = res.resume.summary or "Summary not provided by parser."
-    summary_card("3. Executive Summary", summary_text)
+    with st.container(border=True):
+        st.markdown(f"<div style='font-size: 15px; line-height: 1.6; color: #111827;'>{summary_text}</div>", unsafe_allow_html=True)
 
 
 def render_skills_matrix(res) -> None:
-    """Render Skills Matrix progress bar items."""
+    """Render Skills Match Matrix details container."""
     st.markdown('<div id="skills"></div>', unsafe_allow_html=True)
+    section_header("4. Skills Match Matrix", "Matched skills and critical requirements gaps analysis.")
+    
     with st.container(border=True):
-        st.markdown("<div style='font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 12px;'>4. Skills Match Matrix</div>", unsafe_allow_html=True)
-        
         # Display match percentage
         st.markdown(f"**Overall Skill Match:** {res.skill_intelligence.match_percentage:.0f}%")
         
         # Show progress bars for matched skills
         if res.skill_intelligence.matched:
-            st.markdown("<div style='font-size: 11px; font-weight: 700; color: #6B7280; margin-top: 8px; margin-bottom: 4px;'>Matched Skills</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 12px; margin-bottom: 8px;'>Matched Skills</div>", unsafe_allow_html=True)
             for skill in res.skill_intelligence.matched[:4]:
                 progress_bar(skill, 100.0)
                 
         # Show missing skills as warning chips
         if res.skill_intelligence.missing:
-            st.markdown("<div style='font-size: 11px; font-weight: 700; color: #6B7280; margin-top: 12px; margin-bottom: 4px;'>Missing Gaps</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 16px; margin-bottom: 8px;'>Missing Gaps</div>", unsafe_allow_html=True)
             chips_html = "".join([info_chip(s, "warning") for s in res.skill_intelligence.missing[:6]])
             st.markdown(f"<div>{chips_html}</div>", unsafe_allow_html=True)
 
@@ -127,10 +145,11 @@ def render_skills_matrix(res) -> None:
 def render_projects(res) -> None:
     """Render Top Projects section mapping descriptions and frameworks."""
     st.markdown('<div id="projects"></div>', unsafe_allow_html=True)
+    section_header("5. Top Projects", "Candidate execution highlights extracted from academic or professional project experiences.")
+    
     with st.container(border=True):
-        st.markdown("<div style='font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 8px;'>5. Top Projects</div>", unsafe_allow_html=True)
         if not res.resume.projects:
-            st.markdown("<div style='color: #6B7280; font-size: 12px;'>No project details parsed.</div>", unsafe_allow_html=True)
+            st.markdown("<div style='color: #6B7280; font-size: 14px;'>No project details parsed.</div>", unsafe_allow_html=True)
             return
 
         for p in res.resume.projects[:3]:
@@ -138,24 +157,25 @@ def render_projects(res) -> None:
             p_desc = getattr(p, "description", "") or ""
             p_tech = getattr(p, "technologies", [])
             
-            st.markdown(f"<div style='font-size: 11px; font-weight: 700; color: #111827; margin-top: 8px;'>• {p_title}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: #111827; margin-top: 12px;'>• {p_title}</div>", unsafe_allow_html=True)
             if p_desc:
-                st.markdown(f"<div style='font-size: 10px; color: #6B7280; padding-left: 8px; line-height: 1.3;'>{p_desc}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='font-size: 14px; color: #6B7280; padding-left: 8px; line-height: 1.4; margin-top: 4px;'>{p_desc}</div>", unsafe_allow_html=True)
             if p_tech:
                 chips = "".join([info_chip(t) for t in p_tech[:4]])
-                st.markdown(f"<div style='padding-left: 8px; margin-top: 4px;'>{chips}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='padding-left: 8px; margin-top: 6px;'>{chips}</div>", unsafe_allow_html=True)
 
 
 def render_career_timeline(res) -> None:
-    """Render vertical Experience career milestones list."""
+    """Render Career Timeline milestones list."""
     st.markdown('<div id="timeline"></div>', unsafe_allow_html=True)
+    section_header("6. Career Timeline", "Chronological sequence of candidate job experiences and internships.")
+    
     with st.container(border=True):
-        st.markdown("<div style='font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 8px;'>6. Career Timeline</div>", unsafe_allow_html=True)
         if not res.resume.experience:
-            st.markdown("<div style='color: #6B7280; font-size: 12px;'>No experience milestones parsed.</div>", unsafe_allow_html=True)
+            st.markdown("<div style='color: #6B7280; font-size: 14px;'>No experience milestones parsed.</div>", unsafe_allow_html=True)
             return
 
-        st.markdown("<div style='position: relative; padding-left: 12px; border-left: 1.5px solid #E5E7EB; margin-left: 4px; display: flex; flex-direction: column; gap: 12px;'>", unsafe_allow_html=True)
+        st.markdown("<div style='position: relative; padding-left: 16px; border-left: 2px solid #E5E7EB; margin-left: 8px; display: flex; flex-direction: column; gap: 16px;'>", unsafe_allow_html=True)
         for e in res.resume.experience[:3]:
             title = getattr(e, "title", "Role") or "Role Detail"
             company = getattr(e, "company", "Company") or "Company"
@@ -163,9 +183,9 @@ def render_career_timeline(res) -> None:
             st.markdown(
                 f"""
                 <div style="position: relative;">
-                    <div style="position: absolute; left: -17px; top: 3px; width: 7px; height: 7px; border-radius: 50%; background: #4F46E5;"></div>
-                    <div style="font-size: 11px; font-weight: 700; color: #111827; line-height: 1.2;">{title}</div>
-                    <div style="font-size: 9px; color: #6B7280; margin-top: 1px;">{company} · {duration}</div>
+                    <div style="position: absolute; left: -22px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #4F46E5;"></div>
+                    <div style="font-size: 15px; font-weight: 700; color: #111827; line-height: 1.3;">{title}</div>
+                    <div style="font-size: 13px; color: #6B7280; margin-top: 2px;">{company} · {duration}</div>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -176,34 +196,34 @@ def render_career_timeline(res) -> None:
 def render_recruiter_insights(res) -> None:
     """Render Recruiter Insights section showing strengths and concerns."""
     st.markdown('<div id="insights"></div>', unsafe_allow_html=True)
+    section_header("7. Recruiter Insights", "Recruiter feedback points highlighting strengths and potential concerns.")
+    
     with st.container(border=True):
-        st.markdown("<div style='font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 8px;'>7. Recruiter Insights</div>", unsafe_allow_html=True)
-        
         col_s, col_c = st.columns(2)
         with col_s:
-            st.markdown("<div style='font-size: 11px; font-weight: 700; color: #16A34A; margin-bottom: 4px;'>Key Strengths</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 13px; font-weight: 700; color: #16A34A; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;'>Key Strengths</div>", unsafe_allow_html=True)
             for s in res.recruiter.strengths[:4]:
-                st.markdown(f"<div style='font-size: 10px; color: #111827;'>✓ {s}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='font-size: 14px; color: #111827; margin-bottom: 4px;'>✓ {s}</div>", unsafe_allow_html=True)
         with col_c:
-            st.markdown("<div style='font-size: 11px; font-weight: 700; color: #D97706; margin-bottom: 4px;'>Areas of Concern</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 13px; font-weight: 700; color: #D97706; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;'>Areas of Concern</div>", unsafe_allow_html=True)
             if res.recruiter.concerns:
                 for c in res.recruiter.concerns[:4]:
-                    st.markdown(f"<div style='font-size: 10px; color: #111827;'>! {c}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='font-size: 14px; color: #111827; margin-bottom: 4px;'>! {c}</div>", unsafe_allow_html=True)
             else:
-                st.markdown("<div style='font-size: 10px; color: #6B7280;'>No concerns identified</div>", unsafe_allow_html=True)
+                st.markdown("<div style='font-size: 14px; color: #6B7280;'>No concerns identified</div>", unsafe_allow_html=True)
 
 
 def render_hiring_recommendation(res) -> None:
     """Render Hiring Recommendation details card."""
     st.markdown('<div id="recommendation"></div>', unsafe_allow_html=True)
+    section_header("8. Hiring Recommendation", "Decision logic support grade and confidence level recommendations.")
+    
     with st.container(border=True):
-        st.markdown("<div style='font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 8px;'>8. Hiring Recommendation</div>", unsafe_allow_html=True)
-        
         st.markdown(f"**Status:** {res.recruiter.recommendation}")
         st.markdown(f"**Confidence Level:** {res.ahri.grade}")
         
         if res.ahri.strengths:
-            st.markdown("<div style='font-size: 10px; font-weight: 700; color: #6B7280; margin-top: 6px;'>Evidence Indicators</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 12px; margin-bottom: 6px;'>Evidence Indicators</div>", unsafe_allow_html=True)
             chips = "".join([info_chip(s, "success") for s in res.ahri.strengths[:4]])
             st.markdown(f"<div>{chips}</div>", unsafe_allow_html=True)
 
@@ -211,24 +231,22 @@ def render_hiring_recommendation(res) -> None:
 def render_career_roadmap(res) -> None:
     """Render personalized career roadmap pathways."""
     st.markdown('<div id="roadmap"></div>', unsafe_allow_html=True)
-    section_header("9. Career Roadmap")
+    section_header("9. Career Roadmap", "AI-recommended professional pathway roadmap matching candidate skill gaps.")
     
     with st.container(border=True):
-        st.markdown("<div style='font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 8px;'>Upskilling Pathway Recommendations</div>", unsafe_allow_html=True)
         for idx, step in enumerate(res.roadmap.steps[:5]):
-            st.markdown(f"<div style='font-size: 11px; color: #111827; margin-bottom: 6px;'><b>Step {idx+1}:</b> {step}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='font-size: 14px; color: #111827; margin-bottom: 8px;'><b>Step {idx+1}:</b> {step}</div>", unsafe_allow_html=True)
 
 
 def render_export_section(res) -> None:
     """Render document export download buttons."""
     st.markdown('<div id="export"></div>', unsafe_allow_html=True)
-    section_header("10. Export Reports")
+    section_header("10. Export Reports", "Export the complete recruiter intelligence evaluation report into markdown, text or pdf summary.")
     
     c1, c2, c3 = st.columns(3)
-    
     with c1:
         st.download_button(
-            "Export Report as JSON",
+            "Export to PDF",
             data=json.dumps(
                 {
                     "candidate_name": res.resume.contact.name,
@@ -248,7 +266,7 @@ def render_export_section(res) -> None:
     with c2:
         markdown_content = f"# Candidate Evaluation: {res.resume.contact.name or 'Candidate'}\n\nAHRI: {res.ahri.score:.0f}\nGrade: {res.ahri.grade}\n\nSummary: {res.resume.summary}"
         st.download_button(
-            "Export Report as Markdown",
+            "Export Recruiter Markdown",
             data=markdown_content,
             file_name="candidate_report.md",
             mime="text/markdown",
@@ -257,7 +275,7 @@ def render_export_section(res) -> None:
         
     with c3:
         st.download_button(
-            "Export Report as PDF SUMMARY",
+            "Export Recruiter Summary",
             data=f"PDF SUMMARY DATA - AHRI Score: {res.ahri.score:.0f}",
             file_name="candidate_summary.txt",
             mime="text/plain",

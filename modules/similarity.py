@@ -13,7 +13,7 @@ from modules.models import (
 
 import streamlit as st
 
-@st.cache_resource
+@st.cache_resource(show_spinner=False)
 def _load_model() -> SentenceTransformer:
     """Load the embedding model once."""
     return SentenceTransformer(EMBEDDING_MODEL)

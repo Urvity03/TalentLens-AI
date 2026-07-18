@@ -122,7 +122,7 @@ def load_css() -> str:
     /* --- Upload Cards Styling ------------------------------------- */
     [data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
-        border: 2px dashed #D1D5DB !important;
+        border: 2px dashed #E5E7EB !important;
         border-radius: 14px !important;
         padding: 16px !important;
         transition: border-color 0.15s ease-in-out !important;
@@ -139,9 +139,17 @@ def load_css() -> str:
         padding: 0 !important;
     }
 
-    /* Browse files button */
-    [data-testid="stFileUploader"] button {
-        background-color: #EEF2FF !important;
+    /* Purple upload icon SVG path */
+    [data-testid="stFileUploader"] svg {
+        fill: #4F46E5 !important;
+        color: #4F46E5 !important;
+    }
+
+    /* White Browse Files button with purple border & text */
+    [data-testid="stFileUploader"] button,
+    [data-testid="stFileUploader"] [data-testid="baseButton-secondary"],
+    [data-testid="stFileUploader"] button[data-testid="baseButton-secondary"] {
+        background-color: #FFFFFF !important;
         border: 1px solid #4F46E5 !important;
         color: #4F46E5 !important;
         border-radius: 8px !important;
@@ -153,10 +161,13 @@ def load_css() -> str:
         box-shadow: none !important;
     }
 
-    [data-testid="stFileUploader"] button:hover {
-        background-color: #4F46E5 !important;
+    /* Hover state with light purple background */
+    [data-testid="stFileUploader"] button:hover,
+    [data-testid="stFileUploader"] [data-testid="baseButton-secondary"]:hover,
+    [data-testid="stFileUploader"] button[data-testid="baseButton-secondary"]:hover {
+        background-color: #EEF2FF !important;
         border-color: #4F46E5 !important;
-        color: #FFFFFF !important;
+        color: #4F46E5 !important;
     }
 
     /* Text elements inside drop uploader */
@@ -193,5 +204,29 @@ def load_css() -> str:
 
     [data-testid="stTextArea"] textarea::placeholder {
         color: #9CA3AF !important;
+    }
+
+    /* --- Export Download Buttons Styling ------------------------- */
+    [data-testid="stDownloadButton"] button {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E5E7EB !important;
+        border-radius: 12px !important;
+        height: 50px !important;
+        font-weight: 600 !important;
+        color: #111827 !important;
+        width: 100% !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+
+    [data-testid="stDownloadButton"] button:hover {
+        background-color: #F8FAFC !important;
+        border-color: #5B4BFF !important;
+        color: #5B4BFF !important;
+        transform: translateY(-1px) !important;
+    }
+
+    [data-testid="stDownloadButton"] button:active {
+        background-color: #EEF2FF !important;
     }
     """
