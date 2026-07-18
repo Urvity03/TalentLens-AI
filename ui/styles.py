@@ -122,7 +122,7 @@ def load_css() -> str:
     /* --- Upload Cards Styling ------------------------------------- */
     [data-testid="stFileUploader"] {
         background-color: #FFFFFF !important;
-        border: 2px dashed #D1D5DB !important;
+        border: 2px dashed #E5E7EB !important;
         border-radius: 14px !important;
         padding: 16px !important;
         transition: border-color 0.15s ease-in-out !important;
@@ -139,9 +139,17 @@ def load_css() -> str:
         padding: 0 !important;
     }
 
-    /* Browse files button */
-    [data-testid="stFileUploader"] button {
-        background-color: #EEF2FF !important;
+    /* Purple upload icon SVG path */
+    [data-testid="stFileUploader"] svg {
+        fill: #4F46E5 !important;
+        color: #4F46E5 !important;
+    }
+
+    /* White Browse Files button with purple border & text */
+    [data-testid="stFileUploader"] button,
+    [data-testid="stFileUploader"] [data-testid="baseButton-secondary"],
+    [data-testid="stFileUploader"] button[data-testid="baseButton-secondary"] {
+        background-color: #FFFFFF !important;
         border: 1px solid #4F46E5 !important;
         color: #4F46E5 !important;
         border-radius: 8px !important;
@@ -153,10 +161,13 @@ def load_css() -> str:
         box-shadow: none !important;
     }
 
-    [data-testid="stFileUploader"] button:hover {
-        background-color: #4F46E5 !important;
+    /* Hover state with light purple background */
+    [data-testid="stFileUploader"] button:hover,
+    [data-testid="stFileUploader"] [data-testid="baseButton-secondary"]:hover,
+    [data-testid="stFileUploader"] button[data-testid="baseButton-secondary"]:hover {
+        background-color: #EEF2FF !important;
         border-color: #4F46E5 !important;
-        color: #FFFFFF !important;
+        color: #4F46E5 !important;
     }
 
     /* Text elements inside drop uploader */

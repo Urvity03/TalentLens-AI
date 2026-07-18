@@ -47,11 +47,11 @@ def init_app() -> None:
         st.session_state.uploaded_jd_bytes = None
 
 
-def render_skeletons() -> None:
-    """Display pulsing skeleton loading state cards."""
-    st.markdown(
+def render_skeletons(placeholder) -> None:
+    """Display pulsing skeleton loading state cards inside a placeholder container."""
+    placeholder.markdown(
         """
-        <div style="margin-top: 32px; padding: 24px; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.05);">
+        <div style="margin-top: 32px; padding: 24px; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 18px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);">
             <div style="font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 16px;">Candidate Overview</div>
             <div class="skeleton" style="height: 16px; width: 60%; margin-bottom: 8px;"></div>
             <div class="skeleton" style="height: 16px; width: 40%; margin-bottom: 8px;"></div>
@@ -105,9 +105,10 @@ def run_pipeline_analysis() -> None:
     progress_bar = st.progress(0)
     status_text = st.empty()
     steps_log = st.empty()
+    skeleton_placeholder = st.empty()
     
-    # Render initial skeletons
-    render_skeletons()
+    # Render initial skeletons inside placeholder
+    render_skeletons(skeleton_placeholder)
 
     def progress_callback(step_name: str, percentage: int):
         st.session_state.analysis_progress = percentage
@@ -139,11 +140,24 @@ def run_pipeline_analysis() -> None:
         st.session_state.analysis_result = result
         st.session_state.analysis_running = False
         st.session_state.analysis_error = None
+        
+        # Explicitly empty all placeholders before rendering dashboard
+        progress_bar.empty()
+        status_text.empty()
+        steps_log.empty()
+        skeleton_placeholder.empty()
+        
         st.rerun()
     except Exception as e:
         # Log error traceback in details
         print("Analysis Exception Traceback:")
         traceback.print_exc()
+        
+        # Empty all placeholders on error too
+        progress_bar.empty()
+        status_text.empty()
+        steps_log.empty()
+        skeleton_placeholder.empty()
         
         st.session_state.analysis_error = str(e)
         st.session_state.analysis_running = False
