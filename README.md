@@ -6,7 +6,6 @@
 
 Analyze resumes beyond keyword matching using NLP, semantic similarity, skill intelligence, and recruiter-focused insights.
 
-<img src="./assets/report-dashboard.png" width="100%">
 
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python)
 ![Streamlit](https://img.shields.io/badge/Streamlit-Frontend-red?logo=streamlit)
