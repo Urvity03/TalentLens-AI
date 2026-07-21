@@ -301,6 +301,6 @@ This project is licensed under the MIT License.
 
 <div align="center">
 
-### ⭐ If you found this project interesting, consider giving it a star!
+### If you found this project interesting, consider giving it a star!
 
 </div>
