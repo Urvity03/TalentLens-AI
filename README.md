@@ -264,15 +264,6 @@ streamlit run app.py
 - Company-specific scoring
 - Resume improvement suggestions
 - Cloud deployment
-
----
-
-# Why I Built This
-
-Recruiters often spend only a few seconds reviewing each resume. TalentLens AI was built to streamline this process by combining NLP and machine learning techniques to generate meaningful, data-driven candidate insights beyond simple keyword matching.
-
-This project showcases practical AI engineering concepts including text processing, semantic similarity, intelligent scoring systems, and interactive dashboard design.
-
 ---
 
 # Author
